@@ -18,10 +18,15 @@ def convert_color_space_BGR_to_RGB(img):
 
     return img
 
-def convert_color_space_RGB_to_BGR(img_RGB):
-    img_BGR = np.zeros_like(img_RGB,dtype=np.float32)
-    # to be completed ...
-    return img_BGR
+def convert_color_space_RGB_to_BGR(img):
+    temp = np.zeros_like(img, dtype=np.float32)
+
+    temp[...,0] = img[...,2]
+    temp[...,2] = img[...,0]
+
+    img[...,0] = temp[...,0]
+    img[...,2] = temp[...,2]
+    return img
 
 def convert_color_space_RGB_to_CIECAM97s(img_RGB):
     '''
@@ -70,14 +75,11 @@ def convert_color_space_RGB_to_Lab(img_RGB):
     ]
     # rgb -> xyz -> lms -> LMS -> LAB
     img = cvt(np.array(RGB2XYZ),img_RGB)
-    cv2.imshow("rgb -> xyz",img)
     img = cvt(np.array(XYZ2LMS),img)
-    cv2.imshow("xyz -> lms",img)
     # img = lms2LMS(img)
     # cv2.imshow("lms->LMS",img)
     img = cvt(np.array(LMS2LAB_1),img)
     img = cvt(np.array(LMS2LAB_2),img)
-    cv2.imshow("LMS -> Lab",img)
 
     return img
 
@@ -103,7 +105,6 @@ def convert_color_space_Lab_to_RGB(lab):
     ]
     img = cvt(np.array(LAB2LMS_1),lab)
     img = cvt(np.array(LAB2LMS_2),img)
-    cv2.imshow("lab -> lms",img)
 
     # img[...,0] = 10**img[...,0] 
     # img[...,1] = 10**img[...,0] 
@@ -111,7 +112,6 @@ def convert_color_space_Lab_to_RGB(lab):
 
     img = cvt(np.array(LMS2RGB),img)
 
-    cv2.imshow("lms -> rgb",img)
 
     return img
 
@@ -208,31 +208,26 @@ if __name__ == "__main__":
     path_file_image_result_in_CIECAM97s = sys.argv[5]
    
    
-    # rmse(pathSrc,pathTarget)
     # ===== read input images
-    # pathSrc = r'C:\Users\dimit\OneDrive\Desktop\SkooL\410_vision\source1.png'
-    # pathTarget = r'C:\Users\dimit\OneDrive\Desktop\SkooL\410_vision\target1.png'
+
     src = cv2.imread(path_file_image_source)
     trgt = cv2.imread(path_file_image_target)
    
-    # img_RGB_source: is the image you want to change the its color
-    # img_RGB_target: is the image containing the color distribution that you want to change the img_RGB_source to (transfer color of the img_RGB_target to the img_RGB_source)
-
     img_RGB_new_Lab       = color_transfer(convert_color_space_BGR_to_RGB(src), 
     convert_color_space_BGR_to_RGB(trgt), option='in_Lab')
-    img_RGB_new_Lab = img_RGB_new_Lab*255.0
 
-    # img_RGB_new_Lab       = color_transfer(cv2.cvtColor(src,cv2.COLOR_BGR2RGB),
-    # cv2.cvtColor(trgt,cv2.COLOR_BGR2RGB), option='in_Lab')
-    cv2.imshow("plz gawd", img_RGB_new_Lab)
+    cv2.imshow("plz gawd",convert_color_space_RGB_to_BGR(img_RGB_new_Lab.clip(0.0, 255.0).astype(np.uint8)))
     cv2.waitKey(0)
     # # todo: save image to path_file_image_result_in_Lab
     # cv2.imwrite('result.png',img_RGB_new_Lab)
-    cv2.imwrite(path_file_image_result_in_Lab, img_RGB_new_Lab.clip(0.0, 255.0).astype(np.uint8))
-    rmse('result.png','result1.png')
+    
+    cv2.imwrite(path_file_image_result_in_Lab,convert_color_space_RGB_to_BGR(img_RGB_new_Lab.clip(0.0, 255.0).astype(np.uint8)))
+
+    rmse(path_file_image_result_in_Lab,r"result1.png")
+    
 
     img_RGB_new_RGB       = color_transfer(src, trgt, option='in_RGB')
-    # todo: save image to path_file_image_result_in_RGB
+    # cv2.imwrite(path_file_image_result_in_RGB,convert_color_space_RGB_to_BGR(img_RGB_new_Lab.clip(0.0, 255.0).astype(np.uint8)))
 
     img_RGB_new_CIECAM97s = color_transfer(src, trgt, option='in_CIECAM97s')
-    # todo: save image to path_file_image_result_in_CIECAM97s
+    # cv2.imwrite(path_file_image_result_in_CIECAM97s,convert_color_space_RGB_to_BGR(img_RGB_new_Lab.clip(0.0, 255.0).astype(np.uint8)))
