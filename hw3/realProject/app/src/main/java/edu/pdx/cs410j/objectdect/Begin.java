@@ -26,10 +26,7 @@ public class Begin extends AppCompatActivity implements CameraBridgeViewBase.CvC
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_begin);
-        //System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-//            VideoCapture capture = new VideoCapture(0);
-//            Mat matrix = new Mat();
-//            capture.read(matrix);
+
         cb = (JavaCameraView)findViewById(R.id.Cam);
         cb.setVisibility(SurfaceView.VISIBLE);
         cb.setCvCameraViewListener(this);
